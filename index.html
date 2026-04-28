@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday Surprise 🎉</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      color: white;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      overflow-x: hidden;
+      height: 100vh;
+    }
+
+    .page { display: none; padding-top: 60px; }
+    .active { display: block; }
+
+    .card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      margin: auto;
+      border-radius: 20px;
+      width: 85%;
+      max-width: 380px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    input {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      text-align: center;
+      font-size: 18px;
+      width: 150px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background: #00d2ff;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    img { width: 100%; border-radius: 15px; margin-top: 10px; }
+
+    #cake {
+      width: 120px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .glow {
+      filter: drop-shadow(0 0 15px gold);
+      transform: scale(1.1);
+    }
+
+    #startOverlay {
+      position: fixed;
+      inset: 0;
+      background: #1e3c72;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .spark {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    #countdown {
+      font-size: 80px;
+      font-weight: bold;
+      transition: transform 0.2s;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="startOverlay">
+  <h1>A small surprise for you 🎁</h1>
+  <p>Please turn up your volume 🔊</p>
+  <button onclick="initSite()">Open</button>
+</div>
+
+<div id="page1" class="page">
+  <div class="card">
+    <h2>🔐 Enter Code</h2>
+    <p style="font-size: 0.8em; opacity: 0.7;">(Hint: 1234)</p>
+    <input type="password" id="passInput" maxlength="4" placeholder="****">
+    <br>
+    <button onclick="checkPassword()">Unlock</button>
+    <p id="errorMsg" style="color:#ff4d4d; display:none; font-weight:bold;">Wrong password!</p>
+  </div>
+</div>
+
+<div id="page2" class="page">
+  <div class="card">
+    <h1>🎂 Happy Birthday 🎂</h1>
+    <p>Wishing you a day full of happiness and a year full of good moments.</p>
+    <p>Stay healthy, keep smiling, and continue being the amazing person you are.</p>
+    <p><strong>— 😊</strong></p>
+    <button onclick="nextPage()">Continue ➡️</button>
+  </div>
+</div>
+
+<div id="pageCount" class="page">
+  <h1 id="countdown">3</h1>
+</div>
+
+<div id="pageWish" class="page">
+  <h1 style="font-size:45px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5);">🎉 HAPPY BIRTHDAY 🎉</h1>
+  <p>This moment is yours ✨</p>
+</div>
+
+<div id="page3" class="page">
+  <div class="card">
+    <h2>📸 Memories</h2>
+    <img src="https://picsum.photos/400/300" alt="Memory">
+
+    <div style="position:relative; display:inline-block; margin-top:30px;">
+      <img id="cake" src="https://img.icons8.com/emoji/96/000000/birthday-cake-emoji.png" onclick="blowCandle()">
+      <div id="flames" style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:20px;">
+        🔥 🔥 🔥
+      </div>
+    </div>
+
+    <p id="wishMsg" style="display:none; font-weight:bold; margin-top:15px; color:#ffd700;">
+      ✨ Hope all your wishes come true ✨
+    </p>
+
+    <div style="margin-top:20px;">
+        <button onclick="celebrate()">Celebrate 🎆</button>
+    </div>
+  </div>
+</div>
+
+<audio id="music" preload="auto">
+  <source src="https://www.chosic.com/wp-content/uploads/2021/09/Happy-Birthday-To-You.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const music = document.getElementById("music");
+
+function initSite(){
+  document.getElementById("startOverlay").style.display="none";
+  showPage("page1");
+
+  // UNLOCK AUDIO: Play and immediately pause to satisfy browser security
+  music.play().then(() => {
+    music.pause();
+    music.currentTime = 0;
+  }).catch(e => {
+    console.log("Audio waiting for interaction...");
+  });
+}
+
+function checkPassword(){
+  if(document.getElementById("passInput").value === "1234"){
+    showPage("page2");
+  } else {
+    document.getElementById("errorMsg").style.display="block";
+  }
+}
+
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function nextPage(){
+  showPage("pageCount");
+
+  // Start music when the countdown begins
+  music.currentTime = 0;
+  music.play().catch(e => console.error("Playback failed:", e));
+
+  let count = 3;
+  let el = document.getElementById("countdown");
+
+  let i = setInterval(()=>{
+    count--;
+    el.innerText = count;
+    el.style.transform="scale(1.5)";
+    setTimeout(()=>el.style.transform="scale(1)", 200);
+
+    if(count === 0){
+      clearInterval(i);
+      setTimeout(()=>{
+        showPage("pageWish");
+        cinematicFireworks();
+        setTimeout(()=>{
+          showPage("page3");
+        }, 3000);
+      }, 500);
+    }
+  }, 1000);
+}
+
+function blowCandle(){
+  document.getElementById("flames").style.display="none";
+  document.getElementById("wishMsg").style.display="block";
+  document.getElementById("cake").classList.add("glow");
+  cakeSparkles();
+  fireworks();
+}
+
+function celebrate(){
+  cinematicFireworks();
+}
+
+function fireworks(){
+  for(let i=0; i<30; i++){
+    let d = document.createElement("div");
+    d.className = "spark";
+    document.body.appendChild(d);
+
+    let x = Math.random() * window.innerWidth;
+    let y = Math.random() * (window.innerHeight * 0.6);
+
+    d.style.left = x + "px";
+    d.style.top = y + "px";
+
+    let a = Math.random() * 2 * Math.PI;
+    let dist = Math.random() * 150;
+    d.style.background = `hsl(${Math.random() * 360}, 100%, 70%)`;
+
+    d.animate([
+      { transform: "translate(0,0)", opacity: 1 },
+      { transform: `translate(${Math.cos(a)*dist}px, ${Math.sin(a)*dist}px)`, opacity: 0 }
+    ], { duration: 1000, easing: 'ease-out' });
+
+    setTimeout(() => d.remove(), 1000);
+  }
+}
+
+function cinematicFireworks(){
+  let beats = [0, 400, 800, 1200, 1600];
+  beats.forEach((delay) => {
+    setTimeout(() => fireworks(), delay);
+  });
+}
+
+function cakeSparkles(){
+  let cake = document.getElementById("cake");
+  let rect = cake.getBoundingClientRect();
+
+  for(let i=0; i<25; i++){
+    let s = document.createElement("div");
+    s.className = "spark";
+    document.body.appendChild(s);
+
+    let x = rect.left + rect.width / 2;
+    let y = rect.top + rect.height / 2;
+
+    s.style.left = x + "px";
+    s.style.top = y + "px";
+    s.style.background = "gold";
+
+    let a = Math.random() * 2 * Math.PI;
+    let dist = Math.random() * 100;
+
+    s.animate([
+      { transform: "translate(0,0)", opacity: 1 },
+      { transform: `translate(${Math.cos(a)*dist}px, ${Math.sin(a)*dist}px)`, opacity: 0 }
+    ], { duration: 800 });
+
+    setTimeout(() => s.remove(), 800);
+  }
+}
+</script>
+
+</body>
+</html>
